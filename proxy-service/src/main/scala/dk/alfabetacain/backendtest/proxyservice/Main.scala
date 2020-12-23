@@ -1,11 +1,13 @@
 package dk.alfabetacain.backendtest.proxyservice
 
 import com.twitter.finagle.Http
-import com.twitter.util.Await
+import com.twitter.util.{Await, Future}
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
 import io.finch.syntax._
+import io.iteratee.Enumerator
+import io.finch.iteratee._
 
 object Main extends App {
 
@@ -17,18 +19,21 @@ object Main extends App {
   }
 
   def next(s: Stream[Int]): Stream[Int] = {
-    s.headOption match {
-      case None => Stream.empty
-      case Some(p) =>
-        Stream(p).append(next(
-          s.drop(1).filter(_ % p != 0)
+    s match {
+      case Stream.Empty =>
+        Stream.empty
+      case h #:: t =>
+        Stream(h).append(next(
+          t.filter(_ % h != 0)
         ))
     }
   }
 
-  val primeNumbers: Endpoint[Numbers] =
-    get("/prime/" :: path[Int]) { number: Int =>
-      Ok(Numbers(List(number)))
+  val primeNumbers: Endpoint[Enumerator[Future, Int]] =
+    get("prime" :: path[Int].withToString("number")) { number: Int =>
+      Ok(
+        enumStream[Int](primes(number))
+      )
     }
 
   Await.ready(Http.server.serve(":8081", primeNumbers.toService))
