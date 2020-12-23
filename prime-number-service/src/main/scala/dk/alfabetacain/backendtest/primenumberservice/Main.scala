@@ -2,7 +2,7 @@ package dk.alfabetacain.backendtest.primenumberservice
 
 import com.twitter.finagle.{ListeningServer, Thrift}
 import com.twitter.util.{Await, Future}
-import thrift.PrimeNumberService
+import dk.alfabetacain.backendtest.contract.PrimeNumberService
 
 object Main extends App {
 
