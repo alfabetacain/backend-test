@@ -1,11 +1,11 @@
-package example
+package dk.alfabetacain.backendtest
 
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.circe.generic.auto._
-import io.finch.syntax._
-import io.finch.circe._
 import io.finch._
+import io.finch.circe._
+import io.finch.syntax._
 
 object Main extends App {
 

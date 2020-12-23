@@ -7,6 +7,22 @@ ThisBuild / organizationName := "example"
 
 val finchVersion = "0.22.0"
 
+lazy val primeNumberService = (project in file("prime-number-service"))
+  .settings(
+    name := "prime-number-service"
+  )
+
+lazy val proxyService = (project in file("proxy-service"))
+  .settings(
+    name := "proxy-service",
+    libraryDependencies ++= Seq(
+      scalaTest % Test,
+      "com.github.finagle" %% "finch-core" % finchVersion,
+      "com.github.finagle" %% "finch-circe" %  finchVersion,
+      "io.circe" %% "circe-generic" % "0.9.0"
+    )
+  )
+
 lazy val root = (project in file("."))
   .settings(
     name := "backend-test",
