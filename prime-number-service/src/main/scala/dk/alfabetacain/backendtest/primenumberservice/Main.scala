@@ -36,11 +36,11 @@ object Main extends App {
     "localhost:8082",
     new PrimeNumberService[Future] {
       override def primes(ceiling: Int): Future[List[Int]] = {
-            calculatePrimes(ceiling) match {
-              case Left(err) =>
-                Future.exception(new InvalidNumber(err))
-              case Right(res) =>
-                Future.value(res.toList)
+        calculatePrimes(ceiling) match {
+          case Left(err) =>
+            Future.exception(new InvalidNumber(err))
+          case Right(res) =>
+            Future.value(res.toList)
         }
       }
     }

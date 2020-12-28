@@ -1,8 +1,8 @@
 import Dependencies._
 
-ThisBuild / scalaVersion     := "2.12.3"
-ThisBuild / version          := "0.1.0-SNAPSHOT"
-ThisBuild / organization     := "dk.alfabetacain"
+ThisBuild / scalaVersion := "2.12.3"
+ThisBuild / version := "0.1.0-SNAPSHOT"
+ThisBuild / organization := "dk.alfabetacain"
 ThisBuild / organizationName := "example"
 
 val finchVersion = "0.31.0"
@@ -26,6 +26,7 @@ lazy val primeNumberService = (project in file("prime-number-service"))
       "com.twitter" %% "scrooge-core" % finagleVersion,
       "com.twitter" %% "finagle-thrift" % finagleVersion,
       "org.apache.thrift" % "libthrift" % "0.10.0",
+      "org.scalacheck" %% "scalacheck" % "1.14.1" % Test,
       scalaTest % Test
     )
   ).dependsOn(contract)
@@ -36,7 +37,7 @@ lazy val proxyService = (project in file("proxy-service"))
     libraryDependencies ++= Seq(
       scalaTest % Test,
       "com.github.finagle" %% "finch-core" % finchVersion,
-      "com.github.finagle" %% "finch-circe" %  finchVersion,
+      "com.github.finagle" %% "finch-circe" % finchVersion,
       "com.twitter" %% "scrooge-core" % finagleVersion,
       "com.twitter" %% "finagle-thrift" % finagleVersion,
       "org.apache.thrift" % "libthrift" % "0.10.0",
@@ -50,7 +51,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       scalaTest % Test,
       "com.github.finagle" %% "finch-core" % finchVersion,
-      "com.github.finagle" %% "finch-circe" %  finchVersion,
+      "com.github.finagle" %% "finch-circe" % finchVersion,
       "io.circe" %% "circe-generic" % "0.9.0"
     )
   )
