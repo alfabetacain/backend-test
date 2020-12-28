@@ -28,7 +28,7 @@ object PrimeNumberSpecification extends Properties("Prime numbers") {
     }
   }
 
-  def isPrime(possiblePrime: Int) = {
+  def isPrime(possiblePrime: Int): Boolean = {
     if (possiblePrime < 0) {
       false
     } else {
