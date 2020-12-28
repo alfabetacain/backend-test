@@ -16,22 +16,19 @@ object Main extends App {
         } else {
           Stream.empty
         }
-      val input = Stream.range(2, number + 1)
       val res = prefix.append(
-        next(input)
+        filterPrimes(Stream.from(2))
       )
-      Right(res)
+      Right(res.takeWhile(_ <= number))
     }
   }
 
-  def next(s: Stream[Int]): Stream[Int] = {
+  def filterPrimes(s: Stream[Int]): Stream[Int] = {
     s match {
       case Stream.Empty =>
         Stream.empty
       case h #:: t =>
-        Stream(h).append(next(
-          t.filter(_ % h != 0)
-        ))
+        h #:: filterPrimes(t.filter(_ % h != 0))
     }
   }
 
