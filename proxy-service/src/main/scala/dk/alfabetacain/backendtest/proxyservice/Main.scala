@@ -27,14 +27,18 @@ object Main extends App {
     )
 
   val primeNumbers: Endpoint[Enumerator[Future, Int]] =
-    get("prime" :: path[Int].withToString("number")) { number: Int =>
-      val result = client.primes(Primes.Args(number))
-      result.map(res => {
-        Ok(
-          enumStream[Int](res.toStream)
-        )
-      }).handle{
-        case e: InvalidNumber => BadRequest(e)
+    get("prime" :: path[String].withToString("number")) { maybeNumber: String =>
+      if (maybeNumber.forall(Character.isDigit)) {
+        val result = client.primes(Primes.Args(maybeNumber.toInt))
+        result.map(res => {
+          Ok(
+            enumStream[Int](res.toStream)
+          )
+        }).handle {
+          case e: InvalidNumber => BadRequest(e)
+        }
+      } else {
+        Future.value(BadRequest(new IllegalArgumentException(s"$maybeNumber is not a number")))
       }
     }
 
