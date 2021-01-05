@@ -6,12 +6,13 @@ import akka.grpc.GrpcClientSettings
 import akka.http.javadsl.model
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.common.EntityStreamingSupport
+import akka.http.scaladsl.marshalling.{Marshaller, Marshalling}
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.{Flow, Framing}
 import akka.util.ByteString
-import dk.alfabetacain.backendtest.grpc.{PrimeNumberService, PrimeNumberServiceClient, PrimeRequest}
+import dk.alfabetacain.backendtest.grpc.{PrimeNumberService, PrimeNumberServiceClient, PrimeReply, PrimeRequest}
 
 import scala.io.StdIn
 
@@ -25,11 +26,19 @@ object Main extends App {
 
   val client: PrimeNumberService = PrimeNumberServiceClient(clientSettings)
 
+  implicit val primeReplyMarshaller = Marshaller.strict[PrimeReply, ByteString] { reply =>
+    Marshalling.WithFixedContentType(ContentTypes.`text/plain(UTF-8)`, () => {
+      ByteString(reply.value.toString)
+    })
+  }
+
+  implicit val primeReplyStreaming = new CustomEntityStreaming()
+
   val route =
      {
       get {
         pathPrefix("primes" / IntNumber) { ceiling =>
-          complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, client.getPrimes(PrimeRequest(ceiling)).map(x => ByteString(s"${x.value}"))))
+          complete(client.getPrimes(PrimeRequest(ceiling)))
         }
       }
     }
@@ -53,22 +62,22 @@ object Main extends App {
    */
 }
 
-class CustomEntityStreaming extends EntityStreamingSupport {
-  override def supported: ContentTypeRange = ???
+final class CustomEntityStreaming(maxLineLength: Int, val supported: ContentTypeRange, val contentType: ContentType, val framingRenderer: Flow[ByteString, ByteString, NotUsed], val parallelism: Int, val unordered: Boolean) extends EntityStreamingSupport {
 
-  override def contentType: ContentType = ???
+  def this() =
+    this(
+      1024,
+      ContentTypeRange(ContentTypes.`text/plain(UTF-8)`),
+      ContentTypes.`text/plain(UTF-8)`,
+      Flow[ByteString].intersperse(ByteString(",")),
+      1, false
+    )
 
-  override def framingDecoder: Flow[ByteString, ByteString, NotUsed] = ???
-
-  override def framingRenderer: Flow[ByteString, ByteString, NotUsed] = ???
+  override def framingDecoder: Flow[ByteString, ByteString, NotUsed] = Framing.delimiter(ByteString(","), maxLineLength)
 
   override def withSupported(range: model.ContentTypeRange): EntityStreamingSupport = ???
 
   override def withContentType(range: model.ContentType): EntityStreamingSupport = ???
-
-  override def parallelism: Int = ???
-
-  override def unordered: Boolean = ???
 
   override def withParallelMarshalling(parallelism: Int, unordered: Boolean): EntityStreamingSupport = ???
 }
