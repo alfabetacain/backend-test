@@ -5,8 +5,6 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dk.alfabetacain"
 ThisBuild / organizationName := "example"
 
-val finchVersion = "0.31.0"
-val finagleVersion = "20.12.0"
 
 lazy val contract = (project in file("contract"))
   .settings(
@@ -38,10 +36,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "backend-test",
     libraryDependencies ++= Seq(
-      scalaTest % Test,
-      "com.github.finagle" %% "finch-core" % finchVersion,
-      "com.github.finagle" %% "finch-circe" % finchVersion,
-      "io.circe" %% "circe-generic" % "0.9.0"
+      scalaTest % Test
     )
   )
 

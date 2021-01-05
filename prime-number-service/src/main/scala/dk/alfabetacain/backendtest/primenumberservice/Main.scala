@@ -69,10 +69,9 @@ class PrimeServer(system: ActorSystem) {
   }
 }
 class Service(implicit mat: Materializer) extends PrimeNumberService {
-  import mat.executionContext
 
   override def getPrimes(req: PrimeRequest): Source[PrimeReply, NotUsed] = {
-    Source(Main.calculatePrimes(req.upperLimit).getOrElse(null)).map(x => PrimeReply(x))
+    Source(Main.calculatePrimes(req.upperLimit).getOrElse(Stream.empty)).map(x => PrimeReply(x))
   }
 
 }
