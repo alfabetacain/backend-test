@@ -26,9 +26,11 @@ object Main extends App {
   val client: PrimeNumberService = PrimeNumberServiceClient(clientSettings)
 
   val route =
-    path("hello") {
+     {
       get {
-        complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, client.getPrimes(PrimeRequest(4)).map(x => ByteString(s"${x.value}"))))
+        pathPrefix("primes" / IntNumber) { ceiling =>
+          complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, client.getPrimes(PrimeRequest(ceiling)).map(x => ByteString(s"${x.value}"))))
+        }
       }
     }
 
