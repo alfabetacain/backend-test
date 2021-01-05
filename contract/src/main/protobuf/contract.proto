@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message PrimeRequest {
+  int32 upperLimit = 1;
+}
+
+message PrimeReply {
+  int32 value = 1;
+}
+
+service PrimeNumberService {
+  rpc GetPrimes (PrimeRequest) returns (stream PrimeReply) {}
+}
+
+option java_package = "dk.alfabetacain.backendtest.grpc";

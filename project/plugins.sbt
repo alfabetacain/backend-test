@@ -1,1 +1,1 @@
-addSbtPlugin("com.twitter" % "scrooge-sbt-plugin" % "20.12.0")
+addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "1.0.2")

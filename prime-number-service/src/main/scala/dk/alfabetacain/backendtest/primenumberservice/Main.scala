@@ -1,8 +1,15 @@
 package dk.alfabetacain.backendtest.primenumberservice
 
-import com.twitter.finagle.{ListeningServer, Thrift}
-import com.twitter.util.{Await, Future}
-import dk.alfabetacain.backendtest.contract.{InvalidNumber, PrimeNumberService}
+import akka.NotUsed
+import akka.actor.ActorSystem
+import akka.http.scaladsl.{Http, HttpConnectionContext}
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.scaladsl.Source
+import com.typesafe.config.ConfigFactory
+import dk.alfabetacain.backendtest.grpc.{PrimeNumberService, PrimeNumberServiceHandler, PrimeReply, PrimeRequest}
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object Main extends App {
 
@@ -32,19 +39,40 @@ object Main extends App {
     }
   }
 
-  val server: ListeningServer = Thrift.server.serveIface(
-    "localhost:8082",
-    new PrimeNumberService[Future] {
-      override def primes(ceiling: Int): Future[List[Int]] = {
-        calculatePrimes(ceiling) match {
-          case Left(err) =>
-            Future.exception(new InvalidNumber(err))
-          case Right(res) =>
-            Future.value(res.toList)
-        }
-      }
-    }
-  )
+  override def main(args: Array[String]): Unit = {
+    val conf = ConfigFactory
+      .parseString("akka.http.server.preview.enable-http2 = on")
+      .withFallback(ConfigFactory.defaultApplication())
+    val system = ActorSystem("HelloWorld", conf)
+    new PrimeServer(system).run()
+  }
+}
 
-  Await.ready(server)
+class PrimeServer(system: ActorSystem) {
+  def run(): Future[Http.ServerBinding] = {
+    implicit val sys: ActorSystem = system
+    implicit val mat: Materializer = ActorMaterializer()
+    implicit val ec: ExecutionContext = sys.dispatcher
+
+    val service: HttpRequest => Future[HttpResponse] =
+      PrimeNumberServiceHandler(new Service())
+
+    val binding = Http().bindAndHandleAsync(
+      service,
+      interface = "127.0.0.1",
+      port = 8080,
+      connectionContext = HttpConnectionContext()
+    )
+
+    binding.foreach{ binding => println(s"bound to ${binding.localAddress}")}
+    binding
+  }
+}
+class Service(implicit mat: Materializer) extends PrimeNumberService {
+  import mat.executionContext
+
+  override def getPrimes(req: PrimeRequest): Source[PrimeReply, NotUsed] = {
+    Source(Main.calculatePrimes(req.upperLimit).getOrElse(null)).map(x => PrimeReply(x))
+  }
+
 }

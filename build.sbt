@@ -12,38 +12,27 @@ lazy val contract = (project in file("contract"))
   .settings(
     name := "contract",
     libraryDependencies ++= Seq(
-      "com.twitter" %% "scrooge-core" % finagleVersion,
-      "com.twitter" %% "finagle-thrift" % finagleVersion,
-      "org.apache.thrift" % "libthrift" % "0.10.0",
       scalaTest % Test
     )
-  ).enablePlugins(ScroogeSBT)
+  ).enablePlugins(AkkaGrpcPlugin)
 
 lazy val primeNumberService = (project in file("prime-number-service"))
   .settings(
     name := "prime-number-service",
     libraryDependencies ++= Seq(
-      "com.twitter" %% "scrooge-core" % finagleVersion,
-      "com.twitter" %% "finagle-thrift" % finagleVersion,
-      "org.apache.thrift" % "libthrift" % "0.10.0",
       "org.scalacheck" %% "scalacheck" % "1.14.1" % Test,
       scalaTest % Test
     )
-  ).dependsOn(contract)
+  ).dependsOn(contract).enablePlugins(AkkaGrpcPlugin)
 
 lazy val proxyService = (project in file("proxy-service"))
   .settings(
     name := "proxy-service",
     libraryDependencies ++= Seq(
-      scalaTest % Test,
-      "com.github.finagle" %% "finch-core" % finchVersion,
-      "com.github.finagle" %% "finch-circe" % finchVersion,
-      "com.twitter" %% "scrooge-core" % finagleVersion,
-      "com.twitter" %% "finagle-thrift" % finagleVersion,
-      "org.apache.thrift" % "libthrift" % "0.10.0",
-      "io.circe" %% "circe-generic" % "0.9.0"
+      "com.typesafe.akka" %% "akka-actor-typed" % "2.5.31",
+      scalaTest % Test
     )
-  ).dependsOn(contract)
+  ).dependsOn(contract).enablePlugins(AkkaGrpcPlugin)
 
 lazy val root = (project in file("."))
   .settings(
