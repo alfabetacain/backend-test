@@ -1,3 +1,11 @@
+# Versions
+
+There are two versions of this assignment: 
+- Akka based (this one)
+- Thrift based (check the branch `thrift`)
+
+Note that the thrift based version does not comply with every aspect of the spec. 
+
 # How to run
 
 Run the following commands:
