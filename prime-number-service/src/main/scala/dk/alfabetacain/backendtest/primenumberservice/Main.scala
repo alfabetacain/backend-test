@@ -35,7 +35,7 @@ object Main extends App {
       case Stream.Empty =>
         Stream.empty
       case h #:: t =>
-        h #:: filterPrimes(t.filter(_ % h != 0))
+        Stream.cons(h, filterPrimes(t.filter(_ % h != 0)))
     }
   }
 
